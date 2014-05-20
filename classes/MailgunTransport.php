@@ -3,6 +3,9 @@
 namespace Codewrangler77\MailerMailgun;
 
 use Mailgun\Mailgun;
+use \Swift_Transport;
+use \Swift_Mime_Message;
+use \Swift_Events_EventListener;
 
 /*
  * (c) 2014 Dave West <dave@unleashed-software.com>
@@ -31,7 +34,7 @@ class MailgunTransport implements Swift_Transport
     public function __construct($api_key, $domain) 
     {
         $this->api_key = $api_key;
-        $this->domain;
+        $this->domain = $domain;
 
         $this->mailgun = new Mailgun($this->api_key);
     }
@@ -70,20 +73,35 @@ class MailgunTransport implements Swift_Transport
      */
     public function send(Swift_Mime_Message $message, &$failedRecipients = null)
     {
+
         $mgMessage = array(  
-                'from'    => implode(',', array_keys($message->getSender())), 
-                 'to'      => implode(',', array_keys($message->getTo())),
-                 'cc'      => implode(',', array_keys($message->getCc())),
-                 'bcc'      => implode(',', array_keys($message->getBcc())),
+                'from'    => implode(',', array_keys($message->getFrom())), 
                  'subject' => $message->getSubject());
 
 
+        $to = $message->getTo();
+        if( is_array($to)) {
+            $mgMessage['to']      = implode(',', array_keys($to));
+        }
 
-         if( $message->getContentType == 'text/plain' ) {
-                  $mgMessage['text']  = $message->getBody();
-         } else if( $message->getContentType == 'text/html' ) {
-                  $mgMessage['html']  = $message->getBody();
-         }
+        $cc = $message->getCc();
+        if( is_array($cc)) {
+            $mgMessage['cc']      = implode(',', array_keys($cc));
+        }
+
+        $bcc = $message->getBcc();
+        if( is_array($bcc)) {
+            $mgMessage['bcc']      = implode(',', array_keys($bcc));
+        }
+         
+
+        $contentType = $message->getContentType(); 
+
+        if( $contentType == 'text/plain' ) {
+            $mgMessage['text']  = $message->getBody();
+        } else if( $contentType == 'text/html' ) {
+            $mgMessage['html']  = $message->getBody();
+        }
 
 
         $result = $this->mailgun->sendMessage($this->domain, $mgMessage);

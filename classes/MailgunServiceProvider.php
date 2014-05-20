@@ -47,7 +47,7 @@ class MailgunServiceProvider extends MailServiceProvider {
 		{
 			extract($config);
 
-			$transport = MailgunTransport::newInstance($mailgun_key, $mailgun_domain);
+			$transport = new MailgunTransport($mailgun_key, $mailgun_domain);
 
 			return $transport;
 		});
