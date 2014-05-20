@@ -1,0 +1,15 @@
+{
+    "name": "codewrangler77/mailer-mailgun",
+    "description": "Laravel MailServiceProvider provides a Mailer transport over Mailgun's HTTP API",
+    "license": "BSD",
+    "authors": [
+        {
+            "name": "Dave West",
+            "email": "dave@unleashed-software.com"
+        }
+    ],
+    "require": {
+        "mailgun/mailgun-php": "*",
+        "swiftmailer/swiftmailer": "~5.0",
+    }
+}
