@@ -4,6 +4,7 @@ namespace Codewrangler77\MailerMailgun;
 
 use Swift_Mailer;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Mail\MailServiceProvider;
 use Codewrangler77\MailerMailgun\MailgunTransport;
 
 
