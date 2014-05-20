@@ -75,33 +75,52 @@ class MailgunTransport implements Swift_Transport
     {
 
         $mgMessage = array(  
-                'from'    => implode(',', array_keys($message->getFrom())), 
                  'subject' => $message->getSubject());
 
+        $fromHeader = $message->getHeaders()->get('From');
+        $toHeader = $message->getHeaders()->get('To');
+        $ccHeader = $message->getHeaders()->get('Cc');
+        $bccHeader = $message->getHeaders()->get('Bcc');
+        $subjectHeader = $message->getHeaders()->get('Subject');
 
-        $to = $message->getTo();
-        if( is_array($to)) {
-            $mgMessage['to']      = implode(',', array_keys($to));
+        if (!$toHeader) {
+            throw new Swift_TransportException(
+                'Cannot send message without a recipient'
+            );
         }
 
-        $cc = $message->getCc();
-        if( is_array($cc)) {
-            $mgMessage['cc']      = implode(',', array_keys($cc));
+        $mgMessage['from'] = $fromHeader->getFieldBody();
+
+        if( !empty($toHeader) ) {
+            $to = $toHeader->getFieldBody();
+            if(!empty($to)) {
+                $mgMessage['to'] = $to;
+            } 
         }
 
-        $bcc = $message->getBcc();
-        if( is_array($bcc)) {
-            $mgMessage['bcc']      = implode(',', array_keys($bcc));
+        if( !empty($ccHeader) ) {
+            $cc = $ccHeader->getFieldBody();
+            if(!empty($cc)) {
+                $mgMessage['cc'] = $cc;
+            } 
         }
-         
 
-        $contentType = $message->getContentType(); 
+        if( !empty($bccHeader) ) {
+            $bcc = $bccHeader->getFieldBody();
+            if(!empty($bcc)) {
+                $mgMessage['bcc'] = $bcc;
+            } 
+        }
 
-        if( $contentType == 'text/plain' ) {
-            $mgMessage['text']  = $message->getBody();
-        } else if( $contentType == 'text/html' ) {
+
+        $mgMessage['subject'] = $subjectHeader ? $subjectHeader->getFieldBody() : '';
+
+
+        if( $message->getContentType() == 'text/html' ) {
             $mgMessage['html']  = $message->getBody();
         }
+
+        $mgMessage['text']  = $message->toString();
 
 
         $result = $this->mailgun->sendMessage($this->domain, $mgMessage);
