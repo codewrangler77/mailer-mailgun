@@ -16,5 +16,5 @@
         "psr-4": {
             "Codewrangler77\\MailerMailgun\\": "classes"
         }
-    },
+    }
 }
